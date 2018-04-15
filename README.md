@@ -1,2 +1,2 @@
 # twins
-PyWeek 25 games
+PyWeek 25 game
