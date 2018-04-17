@@ -7,6 +7,7 @@ import math
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 384
+PLAYER_SCALE = .8
 
 FACE_RIGHT = 1
 FACE_LEFT = 2
@@ -15,55 +16,31 @@ class Game(arcade.Window):
 
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Twins")
-        self.erika_list = None
-        self.quentin_list = None
-        self.erika_sprite = None
-        self.quentin_sprite = None
         self.walls = None
-        self.physics_erika = None
-        self.physics_quentin = None
-        self.erika_active = True
-        self.quentin_active = False
+        self.physics = None
+        self.first_world = True
 
     def setup(self):
         arcade.set_background_color(arcade.color.AMAZON)
-        self.erika_list = arcade.SpriteList()
-        self.quentin_list = arcade.SpriteList()
+        self.player_list = arcade.SpriteList()
         self.walls = arcade.SpriteList()
 
-        self.erika_sprite = AnimatedSprite(scale=.8, center_x=90, center_y=90)
-        self.erika_sprite.stand_right_textures = []
-        self.erika_sprite.stand_left_textures = []
-        self.erika_sprite.walk_right_textures = []
-        self.erika_sprite.walk_left_textures = []
-        self.erika_sprite.jump_right_textures = []
-        self.erika_sprite.jump_left_textures = []
-        self.erika_sprite.stand_right_textures.append(arcade.load_texture("img/female_stand.png", scale=.8))
-        self.erika_sprite.stand_left_textures.append(arcade.load_texture("img/female_stand.png", scale=.8, mirrored=True))
-        self.erika_sprite.walk_right_textures.append(arcade.load_texture("img/female_walk1.png", scale=.8))
-        self.erika_sprite.walk_right_textures.append(arcade.load_texture("img/female_walk2.png", scale=.8))
-        self.erika_sprite.walk_left_textures.append(arcade.load_texture("img/female_walk1.png", scale=.8, mirrored=True))
-        self.erika_sprite.walk_left_textures.append(arcade.load_texture("img/female_walk2.png", scale=.8, mirrored=True))
-        self.erika_sprite.jump_right_textures.append(arcade.load_texture("img/female_jump.png", scale=.8)) 
-        self.erika_sprite.jump_left_textures.append(arcade.load_texture("img/female_jump.png", scale=.8, mirrored=True)) 
-        self.erika_list.append(self.erika_sprite)
-        self.quentin_sprite = AnimatedSprite(scale=.9, center_x=90, center_y=90)
-        self.quentin_sprite.stand_right_textures = []
-        self.quentin_sprite.stand_left_textures = []
-        self.quentin_sprite.walk_right_textures = []
-        self.quentin_sprite.walk_left_textures = []
-        self.quentin_sprite.jump_right_textures = []
-        self.quentin_sprite.jump_left_textures = []
-        self.quentin_sprite.stand_right_textures.append(arcade.load_texture("img/player_stand.png", scale=.8))
-        self.quentin_sprite.stand_left_textures.append(arcade.load_texture("img/player_stand.png", scale=.8, mirrored=True))
-        self.quentin_sprite.walk_right_textures.append(arcade.load_texture("img/player_walk1.png", scale=.8))
-        self.quentin_sprite.walk_right_textures.append(arcade.load_texture("img/player_walk2.png", scale=.8))
-        self.quentin_sprite.walk_left_textures.append(arcade.load_texture("img/player_walk1.png", scale=.8, mirrored=True))
-        self.quentin_sprite.walk_left_textures.append(arcade.load_texture("img/player_walk2.png", scale=.8, mirrored=True))
-        self.quentin_sprite.jump_right_textures.append(arcade.load_texture("img/player_jump.png", scale=.8)) 
-        self.quentin_sprite.jump_left_textures.append(arcade.load_texture("img/player_jump.png", scale=.8, mirrored=True)) 
-        self.quentin_sprite.alpha = 0
-        self.quentin_list.append(self.quentin_sprite)
+        self.player_sprite = AnimatedSprite(scale=PLAYER_SCALE, center_x=90, center_y=90)
+        self.player_sprite.stand_right_textures = []
+        self.player_sprite.stand_left_textures = []
+        self.player_sprite.walk_right_textures = []
+        self.player_sprite.walk_left_textures = []
+        self.player_sprite.jump_right_textures = []
+        self.player_sprite.jump_left_textures = []
+        self.player_sprite.stand_right_textures.append(arcade.load_texture("img/female_stand.png", scale=.8))
+        self.player_sprite.stand_left_textures.append(arcade.load_texture("img/female_stand.png", scale=.8, mirrored=True))
+        self.player_sprite.walk_right_textures.append(arcade.load_texture("img/female_walk1.png", scale=.8))
+        self.player_sprite.walk_right_textures.append(arcade.load_texture("img/female_walk2.png", scale=.8))
+        self.player_sprite.walk_left_textures.append(arcade.load_texture("img/female_walk1.png", scale=.8, mirrored=True))
+        self.player_sprite.walk_left_textures.append(arcade.load_texture("img/female_walk2.png", scale=.8, mirrored=True))
+        self.player_sprite.jump_right_textures.append(arcade.load_texture("img/female_jump.png", scale=.8)) 
+        self.player_sprite.jump_left_textures.append(arcade.load_texture("img/female_jump.png", scale=.8, mirrored=True)) 
+        self.player_list.append(self.player_sprite)
         
         for y, angle in [(16, 0), (368, 180)]:
             for x in range(16, 800, 32):
@@ -86,65 +63,41 @@ class Game(arcade.Window):
             wall = arcade.Sprite("img/stoneMid.png", .25, center_x=x, center_y=176)
             self.walls.append(wall)
 
-        self.physics_erika = arcade.physics_engines.PhysicsEnginePlatformer(self.erika_sprite, self.walls)
-        self.physics_quentin = arcade.physics_engines.PhysicsEnginePlatformer(self.quentin_sprite, self.walls, .4)
-
-    def active_sprite(self):
-        if self.erika_active:
-            return self.erika_sprite
-        else:
-            return self.quentin_sprite
+        self.physics = arcade.physics_engines.PhysicsEnginePlatformer(self.player_sprite, self.walls)
 
     def on_draw(self):
         arcade.start_render()
-        self.erika_list.draw()
-        self.quentin_list.draw()
+        self.player_list.draw()
         self.walls.draw()
 
     def update(self, delta_time):
-        self.erika_list.update_animation()
-        self.quentin_list.update_animation()
-        self.physics_erika.update()
-        self.physics_quentin.update()
+        self.player_list.update_animation()
+        self.physics.update()
 
     def on_key_press(self, key, modifiers):
+        if key == arcade.key.TAB:
+            if self.first_world:
+                self.first_world = False
+                arcade.set_background_color(arcade.color.AMBER)
+            else:
+                self.first_world = True
+                arcade.set_background_color(arcade.color.AMAZON)
+
         if key == arcade.key.D:
-            self.erika_sprite.change_x = 5
-            self.quentin_sprite.change_x = 5
+            self.player_sprite.change_x = 5
 
         if key == arcade.key.A:
-            self.erika_sprite.change_x = -5
-            self.quentin_sprite.change_x = -5
+            self.player_sprite.change_x = -5
 
-        if key == arcade.key.W:
-            if self.physics_quentin.can_jump() and self.physics_erika.can_jump():
-                self.erika_sprite.change_y = 10
-                self.quentin_sprite.change_y = 10
+        if key == arcade.key.W and self.physics.can_jump():
+            self.player_sprite.change_y = 10
 
     def on_key_release(self, key, modifiers):
-        if key == arcade.key.TAB:
-            if self.erika_sprite.alpha == 0:
-                self.quentin_sprite.alpha = 0
-                self.erika_sprite.alpha = 1
-                arcade.set_background_color(arcade.color.AMAZON)
-            elif self.quentin_sprite.alpha == 0:
-                self.erika_sprite.alpha = 0
-                self.quentin_sprite.alpha = 1
-                arcade.set_background_color(arcade.color.ATOMIC_TANGERINE)
-
         if key == arcade.key.D:
-            self.erika_sprite.change_x = 0
-            self.quentin_sprite.change_x = 0
+            self.player_sprite.change_x = 0
 
         if key == arcade.key.A:
-            self.erika_sprite.change_x = 0
-            self.quentin_sprite.change_x = 0
-
-
-class Player(arcade.Sprite):
-
-    def __init__(self):
-        super().__init__()
+            self.player_sprite.change_x = 0
 
 
 class AnimatedSprite(arcade.AnimatedWalkingSprite):
@@ -211,6 +164,7 @@ class AnimatedSprite(arcade.AnimatedWalkingSprite):
             if self.cur_texture_index >= len(texture_list):
                 self.cur_texture_index = 0
             self.texture = texture_list[self.cur_texture_index]
+
 
 def main():
     game = Game()
