@@ -47,7 +47,7 @@ class Game(arcade.Window):
         self.erika_sprite.jump_right_textures.append(arcade.load_texture("img/female_jump.png", scale=.8)) 
         self.erika_sprite.jump_left_textures.append(arcade.load_texture("img/female_jump.png", scale=.8, mirrored=True)) 
         self.erika_list.append(self.erika_sprite)
-        self.quentin_sprite = AnimatedSprite(scale=.9, center_x=90, center_y=250)
+        self.quentin_sprite = AnimatedSprite(scale=.9, center_x=90, center_y=90)
         self.quentin_sprite.stand_right_textures = []
         self.quentin_sprite.stand_left_textures = []
         self.quentin_sprite.walk_right_textures = []
@@ -109,37 +109,36 @@ class Game(arcade.Window):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.D:
-            self.active_sprite().change_x = 3
+            self.erika_sprite.change_x = 5
+            self.quentin_sprite.change_x = 5
 
         if key == arcade.key.A:
-            self.active_sprite().change_x = -3
+            self.erika_sprite.change_x = -5
+            self.quentin_sprite.change_x = -5
 
         if key == arcade.key.W:
-            if self.erika_active and self.physics_erika.can_jump():
+            if self.physics_quentin.can_jump() and self.physics_erika.can_jump():
                 self.erika_sprite.change_y = 10
-            if self.quentin_active and self.physics_quentin.can_jump():
                 self.quentin_sprite.change_y = 10
 
     def on_key_release(self, key, modifiers):
-        if key == arcade.key.Q:
-            arcade.set_background_color(arcade.color.AERO_BLUE)
-            self.quentin_active = True
-            self.quentin_sprite.alpha = 1
-            self.erika_active = False
-            self.erika_sprite.alpha = 0
-
-        if key == arcade.key.E:
-            arcade.set_background_color(arcade.color.AMAZON)
-            self.erika_active = True
-            self.erika_sprite.alpha = 1
-            self.quentin_active = False
-            self.quentin_sprite.alpha = 0
+        if key == arcade.key.TAB:
+            if self.erika_sprite.alpha == 0:
+                self.quentin_sprite.alpha = 0
+                self.erika_sprite.alpha = 1
+                arcade.set_background_color(arcade.color.AMAZON)
+            elif self.quentin_sprite.alpha == 0:
+                self.erika_sprite.alpha = 0
+                self.quentin_sprite.alpha = 1
+                arcade.set_background_color(arcade.color.ATOMIC_TANGERINE)
 
         if key == arcade.key.D:
-            self.active_sprite().change_x = 0
+            self.erika_sprite.change_x = 0
+            self.quentin_sprite.change_x = 0
 
         if key == arcade.key.A:
-            self.active_sprite().change_x = 0
+            self.erika_sprite.change_x = 0
+            self.quentin_sprite.change_x = 0
 
 
 class Player(arcade.Sprite):
@@ -150,25 +149,11 @@ class Player(arcade.Sprite):
 
 class AnimatedSprite(arcade.AnimatedWalkingSprite):
     
-    def __init__(self, scale: float=1,
-                 image_x: float=0, image_y: float=0,
-                 center_x: float=0, center_y: float=0):
-        super().__init__(scale=scale, image_x=image_x, image_y=image_y,
-                         center_x=center_x, center_y=center_y)
-        self.state = FACE_RIGHT 
-        self.stand_right_textures = None
-        self.stand_left_textures = None
-        self.walk_left_textures = None
-        self.walk_right_textures = None
-        self.walk_up_textures = None
-        self.walk_down_textures = None
-        self.cur_texture_index = 0
-        self.texture_change_distance = 15
-        self.last_texture_change_center_x = 0
-        self.last_texture_change_center_y = 0
+    def __init__(self, scale=1, image_x=0, image_y=0, center_x=0, center_y=0):
+        super().__init__(scale=scale, image_x=image_x, image_y=image_y, center_x=center_x, center_y=center_y)
         self.jump_right_textures = None
         self.jump_left_textures = None
-
+        self.texture_change_distance = 15
 
     def update_animation(self):
         x1 = self.center_x
