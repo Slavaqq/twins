@@ -4,6 +4,7 @@ Game: Twins
 
 import arcade
 import math
+import random
 
 SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 512
@@ -16,7 +17,7 @@ FACE_LEFT = 2
 def get_map(map_file):
     with open(map_file, "r") as f:
         map_array = []
-        for line in map_file:
+        for line in f:
             map_array.append(line.strip().split(","))
     return map_array
 
@@ -27,12 +28,14 @@ class Game(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Twins")
         self.walls = None
         self.physics = None
+        self.gems = None
         self.first_world = True
 
     def setup(self):
-        arcade.set_background_color((196, 98, 16))
+        arcade.set_background_color((20, 20, 20))
         self.player_list = arcade.SpriteList()
         self.walls = arcade.SpriteList()
+        self.gems = arcade.SpriteList()
 
         self.player_sprite = AnimatedSprite(scale=PLAYER_SCALE, center_x=90, center_y=90)
         self.player_sprite.stand_right_textures = []
@@ -50,36 +53,53 @@ class Game(arcade.Window):
         self.player_sprite.jump_right_textures.append(arcade.load_texture("img/player_jump.png", scale=.8)) 
         self.player_sprite.jump_left_textures.append(arcade.load_texture("img/player_jump.png", scale=.8, mirrored=True)) 
         self.player_list.append(self.player_sprite)
-        
-        for y, angle in [(16, 0), (368, 180)]:
-            for x in range(16, 800, 32):
-                wall = arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=y)
-                wall.angle = angle
-                self.walls.append(wall)
+       
 
-        for x, angle in [(16, 270), (784, 90)]:
-            for y in range(48, 337, 32):
-                wall = arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=y)
-                wall.angle = angle
-                self.walls.append(wall)
+        for row_index, row in enumerate(get_map("map.map")):
+            for column_index, item in enumerate(row):
 
-        wall = arcade.Sprite("img/sandMid.png", .25, center_x=752, center_y=48)
-        self.walls.append(wall)
-        wall = arcade.Sprite("img/sandMid.png", .25, center_x=752, center_y=80)
-        self.walls.append(wall)
-        wall = arcade.Sprite("img/sandMid.png", .25, center_x=720, center_y=48)
-        self.walls.append(wall)
-    
-        for x in range(48, 161, 32):
-            wall = arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=176)
-            self.walls.append(wall)
+                x = 16 + column_index * 32
+                y = SCREEN_HEIGHT - (16 + row_index * 32)
+                if item == "0": # empty space
+                    continue
+                elif item == "1": # sky maybe
+                    continue
+                elif item == "2":
+                    self.walls.append(arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=y))
+                elif item == "3":
+                    self.walls.append(arcade.Sprite("img/sandCenter.png", .25, center_x=x, center_y=y))
+                elif item == "4":
+                    self.walls.append(arcade.Sprite("img/sandCliff_left.png", .25, center_x=x, center_y=y))
+                elif item == "5":
+                    self.walls.append(arcade.Sprite("img/sandCliff_right.png", .25, center_x=x, center_y=y))
 
-        self.physics = arcade.physics_engines.PhysicsEnginePlatformer(self.player_sprite, self.walls)
+        self.physics = arcade.physics_engines.PhysicsEnginePlatformer(self.player_sprite, self.walls, .4)
+
+        for __ in range(10):
+
+            gem = arcade.Sprite("img/gemRed.png", .25)
+            gem_placed = False
+
+            while not gem_placed:
+                gem.center_x = random.randrange(SCREEN_WIDTH) 
+                gem.center_y = random.randrange(SCREEN_HEIGHT)
+
+                wall_hit_list = len(arcade.check_for_collision_with_list(gem, self.walls)) == 0
+                gem_hit_list = len(arcade.check_for_collision_with_list(gem, self.gems)) == 0
+                player_hit_list = len(arcade.check_for_collision_with_list(gem, self.player_list)) == 0
+                
+                if wall_hit_list and gem_hit_list and player_hit_list:
+                    gem_placed = True
+
+            self.gems.append(gem)
+
+
 
     def on_draw(self):
         arcade.start_render()
         self.player_list.draw()
         self.walls.draw()
+        self.gems.draw()
 
     def update(self, delta_time):
         self.player_list.update_animation()
@@ -92,7 +112,7 @@ class Game(arcade.Window):
                 arcade.set_background_color((40, 40, 40))
             else:
                 self.first_world = True
-                arcade.set_background_color((196, 98, 16))
+                arcade.set_background_color((20, 20, 20))
  
         if key == arcade.key.D:
             self.player_sprite.change_x = 8 if self.first_world else 3
