@@ -10,6 +10,7 @@ SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 512
 PLAYER_SCALE = .8
 NUMBER_OF_GEMS = 10
+LIMIT = 60
 
 FACE_RIGHT = 1
 FACE_LEFT = 2
@@ -32,6 +33,7 @@ class Game(arcade.Window):
         self.gems = None
         self.first_world = True
         self.score = None
+        self.time = None
 
     def setup(self):
         arcade.set_background_color((20, 20, 20))
@@ -39,6 +41,7 @@ class Game(arcade.Window):
         self.walls = arcade.SpriteList()
         self.gems = arcade.SpriteList()
         self.score = 0
+        self.time = 0.0
 
         self.player_sprite = AnimatedSprite(scale=PLAYER_SCALE, center_x=90, center_y=90)
         self.player_sprite.stand_right_textures = []
@@ -103,8 +106,9 @@ class Game(arcade.Window):
         self.player_list.draw()
         self.walls.draw()
         self.gems.draw()
-        left = NUMBER_OF_GEMS - self.score
-        arcade.draw_text(f"Left: {left}", 900, 495, (255, 255, 255), 12)
+        time = LIMIT - int(self.time)
+        left = NUMBER_OF_GEMS - (self.score)
+        arcade.draw_text(f"Time: {time} Left: {left}", 840, 495, (255, 255, 255), 12)
 
     def update(self, delta_time):
         self.player_list.update_animation()
@@ -117,6 +121,9 @@ class Game(arcade.Window):
             self.score += 1
 
         self.gems.update()
+
+        self.time += delta_time
+
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.TAB:
