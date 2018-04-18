@@ -126,10 +126,10 @@ class Game(arcade.Window):
 
 
     def on_key_press(self, key, modifiers):
-        if key == arcade.key.TAB:
+        if key == arcade.key.SPACE:
             if self.first_world:
                 self.first_world = False
-                arcade.set_background_color((40, 40, 40))
+                arcade.set_background_color((0, 0, 0))
             else:
                 self.first_world = True
                 arcade.set_background_color((20, 20, 20))
