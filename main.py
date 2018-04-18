@@ -9,6 +9,7 @@ import random
 SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 512
 PLAYER_SCALE = .8
+NUMBER_OF_GEMS = 10
 
 FACE_RIGHT = 1
 FACE_LEFT = 2
@@ -30,12 +31,14 @@ class Game(arcade.Window):
         self.physics = None
         self.gems = None
         self.first_world = True
+        self.score = None
 
     def setup(self):
         arcade.set_background_color((20, 20, 20))
         self.player_list = arcade.SpriteList()
         self.walls = arcade.SpriteList()
         self.gems = arcade.SpriteList()
+        self.score = 0
 
         self.player_sprite = AnimatedSprite(scale=PLAYER_SCALE, center_x=90, center_y=90)
         self.player_sprite.stand_right_textures = []
@@ -75,7 +78,7 @@ class Game(arcade.Window):
 
         self.physics = arcade.physics_engines.PhysicsEnginePlatformer(self.player_sprite, self.walls, .4)
 
-        for __ in range(10):
+        for __ in range(NUMBER_OF_GEMS):
 
             gem = arcade.Sprite("img/gemRed.png", .25)
             gem_placed = False
@@ -100,10 +103,20 @@ class Game(arcade.Window):
         self.player_list.draw()
         self.walls.draw()
         self.gems.draw()
+        left = NUMBER_OF_GEMS - self.score
+        arcade.draw_text(f"Left: {left}", 900, 495, (255, 255, 255), 12)
 
     def update(self, delta_time):
         self.player_list.update_animation()
         self.physics.update()
+
+        hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.gems)
+        
+        for gem in hit_list:
+            gem.kill()
+            self.score += 1
+
+        self.gems.update()
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.TAB:
