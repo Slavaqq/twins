@@ -5,12 +5,21 @@ Game: Twins
 import arcade
 import math
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 384
+SCREEN_WIDTH = 960
+SCREEN_HEIGHT = 512
 PLAYER_SCALE = .8
 
 FACE_RIGHT = 1
 FACE_LEFT = 2
+
+
+def get_map(map_file):
+    with open(map_file, "r") as f:
+        map_array = []
+        for line in map_file:
+            map_array.append(line.strip().split(","))
+    return map_array
+
 
 class Game(arcade.Window):
 
@@ -21,7 +30,7 @@ class Game(arcade.Window):
         self.first_world = True
 
     def setup(self):
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color((196, 98, 16))
         self.player_list = arcade.SpriteList()
         self.walls = arcade.SpriteList()
 
@@ -32,35 +41,37 @@ class Game(arcade.Window):
         self.player_sprite.walk_left_textures = []
         self.player_sprite.jump_right_textures = []
         self.player_sprite.jump_left_textures = []
-        self.player_sprite.stand_right_textures.append(arcade.load_texture("img/female_stand.png", scale=.8))
-        self.player_sprite.stand_left_textures.append(arcade.load_texture("img/female_stand.png", scale=.8, mirrored=True))
-        self.player_sprite.walk_right_textures.append(arcade.load_texture("img/female_walk1.png", scale=.8))
-        self.player_sprite.walk_right_textures.append(arcade.load_texture("img/female_walk2.png", scale=.8))
-        self.player_sprite.walk_left_textures.append(arcade.load_texture("img/female_walk1.png", scale=.8, mirrored=True))
-        self.player_sprite.walk_left_textures.append(arcade.load_texture("img/female_walk2.png", scale=.8, mirrored=True))
-        self.player_sprite.jump_right_textures.append(arcade.load_texture("img/female_jump.png", scale=.8)) 
-        self.player_sprite.jump_left_textures.append(arcade.load_texture("img/female_jump.png", scale=.8, mirrored=True)) 
+        self.player_sprite.stand_right_textures.append(arcade.load_texture("img/player_stand.png", scale=.8))
+        self.player_sprite.stand_left_textures.append(arcade.load_texture("img/player_stand.png", scale=.8, mirrored=True))
+        self.player_sprite.walk_right_textures.append(arcade.load_texture("img/player_walk1.png", scale=.8))
+        self.player_sprite.walk_right_textures.append(arcade.load_texture("img/player_walk2.png", scale=.8))
+        self.player_sprite.walk_left_textures.append(arcade.load_texture("img/player_walk1.png", scale=.8, mirrored=True))
+        self.player_sprite.walk_left_textures.append(arcade.load_texture("img/player_walk2.png", scale=.8, mirrored=True))
+        self.player_sprite.jump_right_textures.append(arcade.load_texture("img/player_jump.png", scale=.8)) 
+        self.player_sprite.jump_left_textures.append(arcade.load_texture("img/player_jump.png", scale=.8, mirrored=True)) 
         self.player_list.append(self.player_sprite)
         
         for y, angle in [(16, 0), (368, 180)]:
             for x in range(16, 800, 32):
-                wall = arcade.Sprite("img/stoneMid.png", .25, center_x=x, center_y=y)
+                wall = arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=y)
                 wall.angle = angle
                 self.walls.append(wall)
 
         for x, angle in [(16, 270), (784, 90)]:
             for y in range(48, 337, 32):
-                wall = arcade.Sprite("img/stoneMid.png", .25, center_x=x, center_y=y)
+                wall = arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=y)
                 wall.angle = angle
                 self.walls.append(wall)
 
-        wall = arcade.Sprite("img/stoneMid.png", .25, center_x=752, center_y=48)
+        wall = arcade.Sprite("img/sandMid.png", .25, center_x=752, center_y=48)
         self.walls.append(wall)
-        wall = arcade.Sprite("img/stoneMid.png", .25, center_x=752, center_y=80)
+        wall = arcade.Sprite("img/sandMid.png", .25, center_x=752, center_y=80)
+        self.walls.append(wall)
+        wall = arcade.Sprite("img/sandMid.png", .25, center_x=720, center_y=48)
         self.walls.append(wall)
     
         for x in range(48, 161, 32):
-            wall = arcade.Sprite("img/stoneMid.png", .25, center_x=x, center_y=176)
+            wall = arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=176)
             self.walls.append(wall)
 
         self.physics = arcade.physics_engines.PhysicsEnginePlatformer(self.player_sprite, self.walls)
@@ -78,19 +89,19 @@ class Game(arcade.Window):
         if key == arcade.key.TAB:
             if self.first_world:
                 self.first_world = False
-                arcade.set_background_color(arcade.color.AMBER)
+                arcade.set_background_color((40, 40, 40))
             else:
                 self.first_world = True
-                arcade.set_background_color(arcade.color.AMAZON)
-
+                arcade.set_background_color((196, 98, 16))
+ 
         if key == arcade.key.D:
-            self.player_sprite.change_x = 5
+            self.player_sprite.change_x = 8 if self.first_world else 3
 
         if key == arcade.key.A:
-            self.player_sprite.change_x = -5
+            self.player_sprite.change_x = -8 if self.first_world else -3
 
         if key == arcade.key.W and self.physics.can_jump():
-            self.player_sprite.change_y = 10
+            self.player_sprite.change_y = 7 if self.first_world else 13
 
     def on_key_release(self, key, modifiers):
         if key == arcade.key.D:
