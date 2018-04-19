@@ -11,7 +11,7 @@ SCREEN_HEIGHT = 512
 VIEWPORT_MARGIN = 40
 PLAYER_SCALE = .8
 NUMBER_OF_GEMS = 10
-LIMIT = 10
+LIMIT = 15
 
 INTRO = 0
 GAME = 1
@@ -41,6 +41,7 @@ class Game(arcade.Window):
         self.score = None
         self.time = None
         self.view_left = None
+        self.view_bottom = None
         self.game_state = INTRO
 
     def setup(self):
@@ -51,6 +52,7 @@ class Game(arcade.Window):
         self.score = 0
         self.time = 0.0
         self.view_left = 0
+        self.view_bottom = 0
 
         self.player_sprite = AnimatedSprite(scale=PLAYER_SCALE, center_x=90, center_y=90)
         self.player_sprite.stand_right_textures = []
@@ -120,7 +122,6 @@ class Game(arcade.Window):
         elif self.game_state == WIN:
             self.draw_win()
 
-
     def draw_intro(self):
         arcade.draw_text("Twins", 385, 410, (255, 255, 255), 54)
         arcade.draw_text("Collect gems before time runs out.", 235, 350, (255, 255, 255), 24)
@@ -134,7 +135,7 @@ class Game(arcade.Window):
 
     def draw_win(self):        
         arcade.draw_text("That was amazing!", 215, 400, (255, 255, 255), 54)
-        arcade.draw_text("Press ENTER to restart", 325, 300, (255, 255, 255), 24)
+        arcade.draw_text("Press ENTER to restart", 325, 100, (255, 255, 255), 24)
 
     def draw_game(self):
         arcade.start_render()
@@ -175,8 +176,18 @@ class Game(arcade.Window):
             self.view_left += self.player_sprite.right - right_boundary
             scrolled = True
 
+        top_boundary = self.view_bottom + SCREEN_HEIGHT - VIEWPORT_MARGIN
+        if self.player_sprite.top > top_boundary:
+            self.view_bottom += self.player_sprite.top - top_boundary 
+            scrolled = True
+
+        bottom_boundary = self.view_bottom + VIEWPORT_MARGIN
+        if self.player_sprite.bottom < bottom_boundary:
+            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
+            scrolled = True
+
         if scrolled:
-            arcade.set_viewport(self.view_left, self.view_left + SCREEN_WIDTH, 0, SCREEN_HEIGHT)
+            arcade.set_viewport(self.view_left, self.view_left + SCREEN_WIDTH, self.view_bottom, self.view_bottom + SCREEN_HEIGHT)
 
 
     def on_key_press(self, key, modifiers):
