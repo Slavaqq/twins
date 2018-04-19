@@ -10,8 +10,8 @@ SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 512
 VIEWPORT_MARGIN = 40
 PLAYER_SCALE = .8
-NUMBER_OF_GEMS = 10
-LIMIT = 15
+NUMBER_OF_GEMS = 50
+LIMIT = 40
 
 INTRO = 0
 GAME = 1
@@ -54,7 +54,7 @@ class Game(arcade.Window):
         self.view_left = 0
         self.view_bottom = 0
 
-        self.player_sprite = AnimatedSprite(scale=PLAYER_SCALE, center_x=90, center_y=90)
+        self.player_sprite = AnimatedSprite(scale=PLAYER_SCALE, center_x=90, center_y=80)
         self.player_sprite.stand_right_textures = []
         self.player_sprite.stand_left_textures = []
         self.player_sprite.walk_right_textures = []
@@ -80,7 +80,7 @@ class Game(arcade.Window):
                 if item == "0": # empty space
                     continue
                 elif item == "1": # sky maybe
-                    continue
+                    self.walls.append(arcade.Sprite("img/boxCrate_double.png", .25, center_x=x, center_y=y))
                 elif item == "2":
                     self.walls.append(arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=y))
                 elif item == "3":
@@ -98,7 +98,7 @@ class Game(arcade.Window):
             gem_placed = False
 
             while not gem_placed:
-                gem.center_x = random.randrange(SCREEN_WIDTH) 
+                gem.center_x = random.randrange(2200) 
                 gem.center_y = random.randrange(SCREEN_HEIGHT)
 
                 wall_hit_list = len(arcade.check_for_collision_with_list(gem, self.walls)) == 0
@@ -130,10 +130,12 @@ class Game(arcade.Window):
         arcade.draw_text("Press ENTER to start", 330, 100, (255, 255, 255), 24)
 
     def draw_game_over(self):
+        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
         arcade.draw_text("Sorry, game over!", 215, 400, (255, 255, 255), 54)
         arcade.draw_text("Press ENTER to restart", 325, 100, (255, 255, 255), 24)
 
     def draw_win(self):        
+        arcade.set_viewport(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT)
         arcade.draw_text("That was amazing!", 215, 400, (255, 255, 255), 54)
         arcade.draw_text("Press ENTER to restart", 325, 100, (255, 255, 255), 24)
 
@@ -148,7 +150,7 @@ class Game(arcade.Window):
         left = NUMBER_OF_GEMS - (self.score)
         if left == 0:
             self.game_state = WIN
-        arcade.draw_text(f"Time: {time} Left: {left}", 840, 495, (255, 255, 255), 12)
+        arcade.draw_text(f"Time: {time} Left: {left}", self.view_left + 840, self.view_bottom + 495, (255, 255, 255), 12)
 
     def update(self, delta_time):
         self.player_list.update_animation()
