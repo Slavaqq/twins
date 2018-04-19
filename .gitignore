@@ -102,3 +102,6 @@ ENV/
 
 # vim swap
 *.swp
+
+#Mac
+.DS_Store

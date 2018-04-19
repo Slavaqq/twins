@@ -10,7 +10,7 @@ SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 512
 VIEWPORT_MARGIN = 40
 PLAYER_SCALE = .8
-NUMBER_OF_GEMS = 50
+NUMBER_OF_GEMS = 40
 LIMIT = 40
 
 INTRO = 0
@@ -146,9 +146,17 @@ class Game(arcade.Window):
         self.gems.draw()
         time = LIMIT - int(self.time)
         if time <= 0:
+            try:
+                arcade.sound.play_sound("sound/Jingle_Lose_01.wav")
+            except Exception:
+                pass
             self.game_state = OVER
         left = NUMBER_OF_GEMS - (self.score)
         if left == 0:
+            try:
+                arcade.sound.play_sound("sound/Jingle_Win_00.wav")
+            except Exception:
+                pass
             self.game_state = WIN
         arcade.draw_text(f"Time: {time} Left: {left}", self.view_left + 840, self.view_bottom + 495, (255, 255, 255), 12)
 
@@ -202,6 +210,10 @@ class Game(arcade.Window):
                 self.game_state = GAME
 
         if key == arcade.key.SPACE:
+            try:
+                arcade.sound.play_sound("sound/Pickup_02.wav")
+            except Exception:
+                pass
             if self.first_world:
                 self.first_world = False
                 arcade.set_background_color((5, 5, 5))
@@ -216,6 +228,10 @@ class Game(arcade.Window):
             self.player_sprite.change_x = -8 if self.first_world else -3
 
         if key == arcade.key.W and self.physics.can_jump():
+            try:
+                arcade.sound.play_sound("sound/Jump_00.wav")
+            except Exception:
+                pass
             self.player_sprite.change_y = 7 if self.first_world else 13
 
     def on_key_release(self, key, modifiers):
