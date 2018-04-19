@@ -165,7 +165,7 @@ class Game(arcade.Window):
             except Exception:
                 pass
             self.game_state = WIN
-        arcade.draw_text(f"Time: {time} Left: {left}", self.view_left + 840, self.view_bottom + 495, (255, 255, 255), 12)
+        arcade.draw_text(f"Time: {time} Gems: {left}", self.view_left + 825, self.view_bottom + 495, (255, 255, 255), 12)
 
     def update(self, delta_time):
         self.player_list.update_animation()
