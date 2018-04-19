@@ -35,6 +35,7 @@ class Game(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "Twins")
         self.walls = None
+        self.ambi = None
         self.physics = None
         self.gems = None
         self.first_world = True
@@ -47,6 +48,7 @@ class Game(arcade.Window):
     def setup(self):
         arcade.set_background_color((20, 20, 20))
         self.player_list = arcade.SpriteList()
+        self.ambi = arcade.SpriteList()
         self.walls = arcade.SpriteList()
         self.gems = arcade.SpriteList()
         self.score = 0
@@ -79,7 +81,7 @@ class Game(arcade.Window):
                 y = SCREEN_HEIGHT - (16 + row_index * 32)
                 if item == "0": # empty space
                     continue
-                elif item == "1": # sky maybe
+                elif item == "1":
                     self.walls.append(arcade.Sprite("img/boxCrate_double.png", .25, center_x=x, center_y=y))
                 elif item == "2":
                     self.walls.append(arcade.Sprite("img/sandMid.png", .25, center_x=x, center_y=y))
@@ -89,12 +91,16 @@ class Game(arcade.Window):
                     self.walls.append(arcade.Sprite("img/sandCliff_left.png", .25, center_x=x, center_y=y))
                 elif item == "5":
                     self.walls.append(arcade.Sprite("img/sandCliff_right.png", .25, center_x=x, center_y=y))
+                elif item == "8":
+                    self.ambi.append(arcade.Sprite("img/rock.png", .25, center_x=x, center_y=y))
+                elif item == "9":
+                    self.ambi.append(arcade.Sprite("img/signRight.png", .5, center_x=x, center_y=y))
 
         self.physics = arcade.physics_engines.PhysicsEnginePlatformer(self.player_sprite, self.walls, .4)
 
         for __ in range(NUMBER_OF_GEMS):
 
-            gem = arcade.Sprite("img/gemRed.png", .25)
+            gem = arcade.Sprite("img/gemRed.png", .3)
             gem_placed = False
 
             while not gem_placed:
@@ -141,6 +147,7 @@ class Game(arcade.Window):
 
     def draw_game(self):
         arcade.start_render()
+        self.ambi.draw()
         self.player_list.draw()
         self.walls.draw()
         self.gems.draw()
@@ -209,7 +216,7 @@ class Game(arcade.Window):
                 self.setup()
                 self.game_state = GAME
 
-        if key == arcade.key.SPACE:
+        if key == arcade.key.SPACE and self.game_state == GAME:
             try:
                 arcade.sound.play_sound("sound/Pickup_02.wav")
             except Exception:
