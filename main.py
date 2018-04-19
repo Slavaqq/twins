@@ -317,6 +317,7 @@ class AnimatedSprite(arcade.AnimatedWalkingSprite):
 
 def main():
     game = Game()
+    game.set_mouse_visible(False)
     game.setup()
     arcade.run()
 
