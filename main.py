@@ -72,7 +72,6 @@ class Game(arcade.Window):
         self.player_sprite.jump_right_textures.append(arcade.load_texture("img/player_jump.png", scale=.8)) 
         self.player_sprite.jump_left_textures.append(arcade.load_texture("img/player_jump.png", scale=.8, mirrored=True)) 
         self.player_list.append(self.player_sprite)
-       
 
         for row_index, row in enumerate(get_map("map.map")):
             for column_index, item in enumerate(row):
@@ -250,6 +249,7 @@ class Game(arcade.Window):
 
 
 class AnimatedSprite(arcade.AnimatedWalkingSprite):
+    """Sprite class with jump animation support."""
     
     def __init__(self, scale=1, image_x=0, image_y=0, center_x=0, center_y=0):
         super().__init__(scale=scale, image_x=image_x, image_y=image_y, center_x=center_x, center_y=center_y)
