@@ -1,18 +1,27 @@
 Twins
 =====
 
-Written by Štěpán Slavík for PyWeek #25
+Written by Slava for PyWeek #25 April 2018 "Two worlds"
 
 Very short story
 ---------------
 
 The game is about super humans called "Twins".
+
 They are able to travel between two worlds and gather precious gems.
+
+
+Gameplay
+--------
+
+Watch https://youtu.be/yXDuIgCl7hQ
+
 
 Requirements
 ------------
 
 This game needs Python 3.6
+
 http://www.python.org/
 
 Check the requirements.txt for all the Python packages
